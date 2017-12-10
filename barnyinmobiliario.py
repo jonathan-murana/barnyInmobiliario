@@ -62,7 +62,7 @@ def punch():
 
 
 
-    token = '475171486:AAHBqRa4hYcUywIwAQZ6RQ6PaKRnfBthePk'
+    token = '494292193:AAG4--mG6fXyXWCT2jZYViTkWJ5CldENUIE'
     method = 'getUpdates'
 
     response = requests.post(url='https://api.telegram.org/bot{0}/{1}'.format(token, method),
