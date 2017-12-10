@@ -87,7 +87,7 @@ def punch():
                 yaMande.append(identificador)
                 print (response)
 
-FREQ=60
+FREQ=1000
 while True:
     print ("liberarndo a Barny" )
     punch()
