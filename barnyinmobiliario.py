@@ -18,19 +18,19 @@ def punch():
     urlinmuebles= 'https://inmuebles.mercadolibre.com.uy/'
 
     lista = [
-        'casas/alquiler/montevideo/goes/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU'
-        'casas/alquiler/montevideo/brazo-oriental/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU',
-        'alquiler/montevideo/prado/dueno/alquileres-montevideo_PriceRange_18000UYU-25000UYU',
-        'casas/alquiler/montevideo/la-comercial/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU',
-        'casas/alquiler/montevideo/aguada/dueno/alquileres-montevideo_PriceRange_18000UYU-25000UYU',
-        'casas/alquiler/montevideo/jacinto-vera/alquileres-montevideo_PriceRange_18000UYU-25000UYU'
+         'apartamentos/alquiler/montevideo/centro/_PriceRange_15000UYU-20000UYU'
+        #'casas/alquiler/montevideo/goes/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU'
+        #'casas/alquiler/montevideo/brazo-oriental/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU',
+        #'alquiler/montevideo/prado/dueno/alquileres-montevideo_PriceRange_18000UYU-25000UYU',
+        #'casas/alquiler/montevideo/la-comercial/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU',
+        #'casas/alquiler/montevideo/aguada/dueno/alquileres-montevideo_PriceRange_18000UYU-25000UYU',
+        #'casas/alquiler/montevideo/jacinto-vera/alquileres-montevideo_PriceRange_18000UYU-25000UYU'
     ]
 
     actualesCasas = []
     for item in lista:
         response = urllib2.urlopen(urlinmuebles+item)
-
-        print(urlinmuebles+item)
+        #print(urlinmuebles+item)
         html = response.read()
         soup = BeautifulSoup(html, "lxml")
         #print (html)
@@ -43,24 +43,70 @@ def punch():
             links2 = tag.find_all(True, {'class':['item-link']})
             for tag1 in links2:
             #print(tag1)
-                print (tag1["href"])
+                #print (tag1["href"])
                 actualesCasas.append(tag1["href"])
 
+    paginas = soup.find_all(True, {'class':['pagination__page']})
+    #print(paginas)
+    for pagina in paginas[1:]:
+            linkProxPagina = pagina.find_all('a')[0]["href"]
+            print (linkProxPagina)
+
+#COPIADO TODO: hacer una funcion
+            response = urllib2.urlopen(linkProxPagina)
+            #print(urlinmuebles+item)
+            html = response.read()
+            soup = BeautifulSoup(html, "lxml")
+            links = soup.find_all(True, {'class':['rowItem']})
+            for tag in links:
+                links2 = tag.find_all(True, {'class':['item-link']})
+                #print ("links2")
+                #print (links2)
+
+
+                for tag1 in links2:
+                #print(tag1)
+                    #print (tag1["href"])
+                    actualesCasas.append(tag1["href"])
+#COPIADO FIN
 
     pandaNuevo = pd.DataFrame(actualesCasas,columns=["url"])
 
+    #print (pandaNuevo.head())
+
     pandaViejo=pd.read_csv("FILENAME.csv", sep=',', names = ["url"])
 
-    pandaNuevo.to_csv("FILENAME.csv", sep=',')
+    print (len(pandaNuevo.index))
+    print (len(pandaViejo.index))
+    #print(pandaViejo["url"].head())
+    dfNuevaCasas = []
+    for url1 in pandaNuevo["url"]:
+        existe = False
+        for url2 in pandaViejo["url"]:
+            #print("----")
+            #print(url1)
+            #print(url2)
 
-    dfNuevaCasas=pandaNuevo[pandaNuevo["url"].isin(pandaViejo["url"]) == False]
+            if url1==url2:
+                #print("true")
+                #print(url1)
+                #print(url2)
+                existe = True
+            #print(existe)
+        if existe==False:
+            #print("si")
+            dfNuevaCasas.append(url1)
 
     #print ("nuevo" + pandaNuevo[0])
 
+    pandaNuevo.to_csv("FILENAME.csv", sep=',')
+
+
     #print (pandaNuevo[pandaViejo[0]!=pandaNuevo[0]])
-    print (dfNuevaCasas["url"])
+    print (dfNuevaCasas)
+    return dfNuevaCasas
 
-
+def enviar(dfNuevaCasas):
 
     token = '494292193:AAG4--mG6fXyXWCT2jZYViTkWJ5CldENUIE'
     method = 'getUpdates'
@@ -69,8 +115,8 @@ def punch():
     data={}
     ).json()
 
-    msg= "Hola amiguitos, esta son las nuevas casas:"
-    msg = msg + str(dfNuevaCasas["url"].tolist())
+    msg= "Hola amiguitos, esta son los nuevos apartamentos:"
+    msg = msg + str(dfNuevaCasas)
 
     yaMande = []
 
@@ -87,8 +133,10 @@ def punch():
                 yaMande.append(identificador)
                 print (response)
 
-FREQ=1000
+FREQ=1800
 while True:
     print ("liberarndo a Barny" )
-    punch()
+    nuevas = punch()
+    print(nuevas)
+    enviar(nuevas)
     time.sleep(FREQ)
