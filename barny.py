@@ -13,12 +13,31 @@ import time
 
 
 
-def punch():
+def punch(tipo):
 
-    urlinmuebles= 'https://inmuebles.mercadolibre.com.uy/'
+    urlinmuebles= ''
+    if 'inm' == tipo:
+        urlinmuebles= 'https://inmuebles.mercadolibre.com.uy/'
+    	
+    if 'det' == tipo:
+        urlinmuebles= 'https://listado.mercadolibre.com.uy/'	
+    lista = ''
+    if 'inm' == tipo:
+        lista = [
+	'apartamentos/alquiler/montevideo/centro/_PriceRange_15000UYU-20000UYU'
+        #'casas/alquiler/montevideo/goes/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU'
+        #'casas/alquiler/montevideo/brazo-oriental/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU',
+        #'alquiler/montevideo/prado/dueno/alquileres-montevideo_PriceRange_18000UYU-25000UYU',
+        #'casas/alquiler/montevideo/la-comercial/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU',
+        #'casas/alquiler/montevideo/aguada/dueno/alquileres-montevideo_PriceRange_18000UYU-25000UYU',
+        #'casas/alquiler/montevideo/jacinto-vera/alquileres-montevideo_PriceRange_18000UYU-25000UYU'
+    ]
 
-    lista = [
-         'apartamentos/alquiler/montevideo/centro/_PriceRange_15000UYU-20000UYU'
+	
+    if 'det' == tipo:
+        lista = [
+	'saxo','clarinete','saxofon alto', 'sasofon','saxofon soprano'        
+	#'apartamentos/alquiler/montevideo/centro/_PriceRange_15000UYU-20000UYU'
         #'casas/alquiler/montevideo/goes/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU'
         #'casas/alquiler/montevideo/brazo-oriental/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU',
         #'alquiler/montevideo/prado/dueno/alquileres-montevideo_PriceRange_18000UYU-25000UYU',
@@ -30,7 +49,7 @@ def punch():
     actualesCasas = []
     for item in lista:
         response = urllib2.urlopen(urlinmuebles+item)
-        #print(urlinmuebles+item)
+        print(urlinmuebles+item)
         html = response.read()
         soup = BeautifulSoup(html, "lxml")
         #print (html)
@@ -40,17 +59,17 @@ def punch():
         #   creamos una bandera para diferenciar si es valor o producto
         #print (links)
         for tag in links:
-            links2 = tag.find_all(True, {'class':['item-link']})
+            if 'inm' == tipo:
+                links2 = tag.find_all(True, {'class':['item-link']})
+            if 'det' == tipo:
+                links2 = tag.find_all(True, {'class':['item__info-title']})
             for tag1 in links2:
-            #print(tag1)
-                #print (tag1["href"])
                 actualesCasas.append(tag1["href"])
-
-    paginas = soup.find_all(True, {'class':['pagination__page']})
-    #print(paginas)
-    for pagina in paginas[1:]:
+        paginas = soup.find_all(True, {'class':['pagination__page']})
+        #print(paginas)
+        for pagina in paginas[1:]:
             linkProxPagina = pagina.find_all('a')[0]["href"]
-            print (linkProxPagina)
+            #print (linkProxPagina)
 
 #COPIADO TODO: hacer una funcion
             response = urllib2.urlopen(linkProxPagina)
@@ -59,11 +78,11 @@ def punch():
             soup = BeautifulSoup(html, "lxml")
             links = soup.find_all(True, {'class':['rowItem']})
             for tag in links:
-                links2 = tag.find_all(True, {'class':['item-link']})
-                #print ("links2")
-                #print (links2)
-
-
+                #links2 = tag.find_all(True, {'class':['item-link']})
+                if 'inm' == tipo:
+                    links2 = tag.find_all(True, {'class':['item-link']})
+                if 'det' == tipo:
+                    links2 = tag.find_all(True, {'class':['item__info-title']})
                 for tag1 in links2:
                 #print(tag1)
                     #print (tag1["href"])
@@ -76,8 +95,8 @@ def punch():
 
     pandaViejo=pd.read_csv("FILENAME.csv", sep=',', names = ["url"])
 
-    print (len(pandaNuevo.index))
-    print (len(pandaViejo.index))
+    #print (len(pandaNuevo.index))
+    #print (len(pandaViejo.index))
     #print(pandaViejo["url"].head())
     dfNuevaCasas = []
     for url1 in pandaNuevo["url"]:
@@ -106,18 +125,38 @@ def punch():
     print (dfNuevaCasas)
     return dfNuevaCasas
 
-def enviar(dfNuevaCasas):
+def enviar(dfNuevaCasas,tipo):
 
-    token = '494292193:AAG4--mG6fXyXWCT2jZYViTkWJ5CldENUIE'
+    if 'inm' == tipo:
+        token = '494292193:AAG4--mG6fXyXWCT2jZYViTkWJ5CldENUIE'
+    if 'det' == tipo:
+        token = '608953221:AAEerHvUjEAzNuN6EuXKDh0TR-4armGwaEE'
     method = 'getUpdates'
 
     response = requests.post(url='https://api.telegram.org/bot{0}/{1}'.format(token, method),
     data={}
     ).json()
 
-    msg= "Hola amiguitos, esta son los nuevos apartamentos:"
+    #print(response)	
+    msg= "Hola amiguitos, esto parece sospechoso:"
     msg = msg + str(dfNuevaCasas)
 
+    if 'det'==tipo:
+        msg = msg + '\n'
+        msg = msg + 'Y recuerden'
+        msg = msg + '\n'
+        msg = msg + 'Se buscan los siguientes instrumentos musicales:'
+        msg = msg + '\n'
+        msg = msg + '👉saxo alto Yanagisawa 992 el metal tono dorado/rojizo'
+        msg = msg + '\n'
+        msg = msg + '👉saxo soprano Yamaha 875 dorado'
+        msg = msg + '\n'
+        msg = msg + '👉clarinete Buffet r13 de madera, negro,'
+        msg = msg + '\n'
+        msg = msg + 'los tres en valijas negras.'
+        msg = msg + '\n'
+        msg = msg + 'Se ofrece recompensa.'
+   
     yaMande = []
 
     if len(dfNuevaCasas) > 0:
@@ -133,10 +172,22 @@ def enviar(dfNuevaCasas):
                 yaMande.append(identificador)
                 print (response)
 
-FREQ=1800
+import sys
+tipo = 'inm' #inmoviliario
+#a = 'det' #detective
+
+if __name__ == "__main__":
+    tipo = str(sys.argv[1])
+    print (tipo)
+FREQ_SECS=1800
+if 'inm'==tipo:
+    FREQ_SECS=1800
+if 'det'==tipo:
+    FREQ_SECS=3600*24
+
 while True:
-    print ("liberarndo a Barny" )
-    nuevas = punch()
-    print(nuevas)
-    enviar(nuevas)
-    time.sleep(FREQ)
+    print ("liberarndo a Barny " + tipo )
+    nuevas = punch(tipo)
+    #print(nuevas)
+    enviar(nuevas,tipo)
+    time.sleep(FREQ_SECS)
