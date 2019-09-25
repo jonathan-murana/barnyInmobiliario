@@ -24,7 +24,11 @@ def punch(tipo):
     lista = ''
     if 'inm' == tipo:
         lista = [
-	'apartamentos/alquiler/montevideo/centro/_PriceRange_15000UYU-20000UYU'
+	'apartamentos/alquiler/montevideo/centro/_PriceRange_15000UYU-25000UYU',
+	'apartamentos/alquiler/montevideo/cordon/_PriceRange_15000UYU-25000UYU',
+	'apartamentos/alquiler/montevideo/tres-cruces/_PriceRange_15000UYU-25000UYU',
+	'apartamentos/alquiler/montevideo/palermo/_PriceRange_15000UYU-25000UYU',
+	'apartamentos/alquiler/montevideo/parque-rodo/_PriceRange_15000UYU-25000UYU'		
         #'casas/alquiler/montevideo/goes/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU'
         #'casas/alquiler/montevideo/brazo-oriental/dueno/alquileres-montevideo-casa_PriceRange_18000UYU-25000UYU',
         #'alquiler/montevideo/prado/dueno/alquileres-montevideo_PriceRange_18000UYU-25000UYU',
