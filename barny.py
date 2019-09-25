@@ -68,7 +68,8 @@ def punch(tipo):
             if 'det' == tipo:
                 links2 = tag.find_all(True, {'class':['item__info-title']})
             for tag1 in links2:
-                actualesCasas.append(tag1["href"])
+                #print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'+ tag1["href"])
+                actualesCasas.append(tag1["href"].split('#')[0])
         paginas = soup.find_all(True, {'class':['pagination__page']})
         #print(paginas)
         for pagina in paginas[1:]:
@@ -89,8 +90,8 @@ def punch(tipo):
                     links2 = tag.find_all(True, {'class':['item__info-title']})
                 for tag1 in links2:
                 #print(tag1)
-                    #print (tag1["href"])
-                    actualesCasas.append(tag1["href"])
+                    #print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'+ tag1["href"])
+                    actualesCasas.append(tag1["href"].split('#')[0])
 #COPIADO FIN
 
     pandaNuevo = pd.DataFrame(actualesCasas,columns=["url"])
@@ -183,9 +184,9 @@ tipo = 'inm' #inmoviliario
 if __name__ == "__main__":
     tipo = str(sys.argv[1])
     print (tipo)
-FREQ_SECS=1800
+FREQ_SECS=5
 if 'inm'==tipo:
-    FREQ_SECS=1800
+    FREQ_SECS=61
 if 'det'==tipo:
     FREQ_SECS=3600*24
 
